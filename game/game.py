@@ -133,23 +133,23 @@ class Game:
     def check_game_over(self):
         self.print_board()  # Se muestra el tablero antes de los mensajes de victoria
         if self.players[0].position == 19 and self.players[1].position == 19:
-            print("¡Empate! Reiniciando el juego...")
+            print("--------¡Empate! Reiniciando el juego...--------")
             self.reset_game()
         elif self.players[0].position == 19:
-            print("¡Jugador 1 ha ganado!")
+            print("--------¡Jugador 1 ha ganado!--------")
             input("Presiona Enter para reiniciar el juego.")
             self.reset_game()
         elif self.players[1].position == 19:
-            print("¡Jugador 2 ha ganado!")
+            print("--------¡Jugador 2 ha ganado!--------")
             input("Presiona Enter para reiniciar el juego.")
             self.reset_game()
         elif len(self.used_questions) == len(self.questions):
             if self.players[0].score == self.players[1].score:
-                print("¡Empate! Reiniciando el juego...")
+                print("--------¡Empate! Reiniciando el juego...--------")
                 self.reset_game()
             else:
                 winner = 1 if self.players[0].score > self.players[1].score else 2
-                print(f"¡Jugador {winner} ha ganado por aciertos!")
+                print(f"--------¡Jugador {winner} ha ganado por aciertos!--------")
                 input("Presiona Enter para reiniciar el juego.")
                 self.reset_game()
 
