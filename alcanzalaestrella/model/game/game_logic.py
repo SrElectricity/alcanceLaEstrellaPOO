@@ -1,5 +1,8 @@
 import random
 
+from alcanzalaestrella.model.game.interface.user_interface import UserInterface
+
+
 class Question:
     def __init__(self, text, options, correct_answer):
         self.text = text
@@ -7,9 +10,7 @@ class Question:
         self.correct_answer = correct_answer
 
     def ask(self):
-        print("\n" + self.text)
-        for option in self.options:
-            print(option)
+        UserInterface.display_question(self.text, self.options)
 
     def check_answer(self, chosen):
         return chosen == self.correct_answer
@@ -60,34 +61,18 @@ class Game:
         random.shuffle(self.questions)
 
     def start(self):
-        print("¡Bienvenido al juego Alcance la estrella!")
+        UserInterface.display_welcome_message()
         self.print_board()
         while True:
             self.roll_dice()
 
     def print_board(self):
-        print("\nTablero:")
-        for row in range(4):
-            line = ""
-            for col in range(5):
-                pos = row * 5 + col
-                if pos == self.players[0].position and pos == self.players[1].position:
-                    marker = "J1/J2"
-                elif pos == self.players[0].position:
-                    marker = "J1"
-                elif pos == self.players[1].position:
-                    marker = "J2"
-                else:
-                    marker = f"{pos + 1:2}"
-                line += f"{marker} | "
-            print(line.rstrip(" | "))
-            print("-" * len(line.rstrip(" | ")))
-        print(f"Aciertos Jugador 1: {self.players[0].score} | Aciertos Jugador 2: {self.players[1].score}\n")
+        UserInterface.display_board(self.players)
 
     def roll_dice(self):
         dice_roll = random.randint(1, 6)
         current_player = self.players[self.current_player_index]
-        print(f"{current_player.name} lanzó un {dice_roll}")
+        UserInterface.display_dice_roll(current_player.name, dice_roll)
         self.move_player(dice_roll)
 
     def move_player(self, spaces):
@@ -105,7 +90,7 @@ class Game:
         available_questions = [q for q in self.questions if q not in self.used_questions]
 
         if not available_questions:
-            print("No quedan preguntas disponibles.")
+            UserInterface.display_no_questions_message()
             self.check_game_over()
             return
 
@@ -113,44 +98,44 @@ class Game:
         self.used_questions.append(question)
         question.ask()
 
-        answer = input("Tu respuesta (a/b/c): ").strip().lower()
+        answer = UserInterface.get_user_input("Tu respuesta (a/b/c): ").strip().lower()
         self.check_answer(answer, question)
 
     def check_answer(self, chosen, question):
         current_player = self.players[self.current_player_index]
         if question.check_answer(chosen):
             current_player.increment_score()
-            print("¡Respuesta correcta!")
+            UserInterface.display_correct_answer()
         else:
             punishment = self.casilla_punishment[current_player.position]
-            print(f"Respuesta incorrecta. Castigo: {punishment}")
+            UserInterface.display_incorrect_answer(punishment)
             current_player.apply_punishment(punishment)
 
-        self.print_board()  # Muestra el tablero y los aciertos
+        self.print_board()
         self.current_player_index = (self.current_player_index + 1) % 2
-        print(f"Es turno del {self.players[self.current_player_index].name}")
+        UserInterface.display_next_turn(self.players[self.current_player_index].name)
 
     def check_game_over(self):
-        self.print_board()  # Se muestra el tablero antes de los mensajes de victoria
+        self.print_board()
         if self.players[0].position == 19 and self.players[1].position == 19:
-            print("--------¡Empate! Reiniciando el juego...--------")
+            UserInterface.display_tie_message()
             self.reset_game()
         elif self.players[0].position == 19:
-            print("--------¡Jugador 1 ha ganado!--------")
-            input("Presiona Enter para reiniciar el juego.")
+            UserInterface.display_winner_message(1)
+            UserInterface.get_user_input("Presiona Enter para reiniciar el juego.")
             self.reset_game()
         elif self.players[1].position == 19:
-            print("--------¡Jugador 2 ha ganado!--------")
-            input("Presiona Enter para reiniciar el juego.")
+            UserInterface.display_winner_message(2)
+            UserInterface.get_user_input("Presiona Enter para reiniciar el juego.")
             self.reset_game()
         elif len(self.used_questions) == len(self.questions):
             if self.players[0].score == self.players[1].score:
-                print("--------¡Empate! Reiniciando el juego...--------")
+                UserInterface.display_tie_message()
                 self.reset_game()
             else:
                 winner = 1 if self.players[0].score > self.players[1].score else 2
-                print(f"--------¡Jugador {winner} ha ganado por aciertos!--------")
-                input("Presiona Enter para reiniciar el juego.")
+                UserInterface.display_score_winner_message(winner)
+                UserInterface.get_user_input("Presiona Enter para reiniciar el juego.")
                 self.reset_game()
 
     def reset_game(self):
@@ -161,7 +146,7 @@ class Game:
         self.used_questions = []
         self.casilla_punishment = {i: random.choice(self.punishments) for i in range(1, 20)}
 
-        print("Juego reiniciado.")
+        UserInterface.display_game_reset()
         self.print_board()
 
 
