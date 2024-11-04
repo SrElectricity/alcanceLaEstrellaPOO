@@ -98,10 +98,8 @@ class AlcanzaLaEstrella:
             messagebox.showinfo("Resultado", "¡Respuesta correcta!")
         else:
             messagebox.showinfo("Resultado", "Respuesta incorrecta.")
-            # Retroceder la posición en el tablero si la respuesta es incorrecta
-            self.posiciones_jugadores[self.turno] -= self.dado
-            if self.posiciones_jugadores[self.turno] < 0:
-                self.posiciones_jugadores[self.turno] = 0  # No retroceder más allá del inicio
+            # Aplicar un castigo aleatorio en caso de respuesta incorrecta
+            self.aplicar_castigo()
 
         # Verificar si el jugador ha ganado
         if self.posiciones_jugadores[self.turno] == 20:
@@ -118,6 +116,24 @@ class AlcanzaLaEstrella:
         # Cambiar turno
         self.turno = 1 - self.turno  # Alternar entre 0 y 1
         self.puntaje_label.config(text=f"Puntajes: Jugador 1 - {self.puntajes[0]} | Jugador 2 - {self.puntajes[1]}")
+
+    def aplicar_castigo(self):
+        castigos = [
+            ("Puente: El jugador retrocede tres casillas.", -3),
+            ("Resbalón: El jugador retrocede dos casillas.", -2),
+            ("Calavera: El jugador vuelve a la casilla 1.", "reset")
+        ]
+        castigo, movimiento = random.choice(castigos)
+
+        if movimiento == "reset":
+            self.posiciones_jugadores[self.turno] = 0  # Enviar al jugador al inicio
+        else:
+            # Aplicar el movimiento de retroceso
+            self.posiciones_jugadores[self.turno] += movimiento
+            if self.posiciones_jugadores[self.turno] < 0:
+                self.posiciones_jugadores[self.turno] = 0  # Evitar posiciones negativas
+
+        messagebox.showinfo("Castigo", castigo)
 
     def actualizar_tablero(self):
         # Restablecer el color de todas las casillas, excepto si el juego ha terminado
